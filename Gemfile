@@ -24,6 +24,11 @@ gem 'jbuilder', '~> 2.0'
 # Use unicorn as the app server
 gem 'unicorn'
 
+# To pre-populate the database
+gem 'seed-fu', '~> 2.3'
+# This will help
+gem 'forgery'
+
 group :development do
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
