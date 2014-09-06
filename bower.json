@@ -1,0 +1,25 @@
+{
+  "name": "futbolTeamManager",
+  "version": "0.0.0",
+  "homepage": "https://github.com/Onikoroshi/futbolTeamManager",
+  "authors": [
+    "Peter T Cormack <petertcormack@gmail.com>"
+  ],
+  "description": "manage futbol teams",
+  "moduleType": [
+    "node"
+  ],
+  "license": "opensource",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "vendor/assets/components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "~3.0.0"
+  }
+}
