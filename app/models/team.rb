@@ -66,5 +66,6 @@ class Team < ActiveRecord::Base
     pile << jersey
     pile.reject!(&:empty?)
     pile.uniq!
+    pile.sort!
   end
 end

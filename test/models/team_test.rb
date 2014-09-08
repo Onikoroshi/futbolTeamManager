@@ -134,4 +134,67 @@ class TeamTest < ActiveSupport::TestCase
     assert_equals_with_expect(team.taken_jerseys, [])
     assert_equals_with_expect(team.available_jerseys, [jersey])
   end
+
+  test "takes an available jersey" do
+    team = teams(:one)
+    available = ["00", "01", "02"]
+    team.available_jerseys = available
+    team.save
+
+    team.send(:take_jersey, "04")
+    assert_equals_with_expect(team.taken_jerseys, ["04"])
+    assert_equals_with_expect(team.available_jerseys, available)
+
+    team.send(:take_jersey, "01")
+    assert_equals_with_expect(team.taken_jerseys, ["01", "04"])
+    assert_equals_with_expect(team.available_jerseys, available - ["01"])
+
+    taken = team.send(:take_jersey)
+    assert_equals_with_expect(team.taken_jerseys, (["04", "01"] + [taken]).sort)
+    assert_equals_with_expect(team.available_jerseys, (available - ["01", taken]).sort)
+  end
+
+  test "takes a jersey, even if none are available" do
+    team = teams(:one)
+    available = []
+
+    team.send(:take_jersey, "04")
+    assert_equals_with_expect(team.taken_jerseys, ["04"])
+    assert_equals_with_expect(team.available_jerseys, available)
+
+    taken = team.send(:take_jersey)
+    assert_equals_with_expect(team.taken_jerseys, ["04"] + [taken])
+    assert_equals_with_expect(team.available_jerseys, available)
+  end
+
+  test "returns a given jersey" do
+    team = teams(:one)
+    available = ["00", "01", "02"]
+    team.available_jerseys = available
+    team.save
+
+    team.send(:return_jersey, "02") # does nothing if no jerseys are taken
+    assert_equals_with_expect(team.taken_jerseys, [])
+    assert_equals_with_expect(team.available_jerseys, available)
+
+    team.send(:take_jersey, "01")
+    assert_equals_with_expect(team.taken_jerseys, ["01"])
+    assert_equals_with_expect(team.available_jerseys, available - ["01"])
+
+    team.send(:return_jersey, "02") # does nothing if given jersey hasn't been taken
+    assert_equals_with_expect(team.taken_jerseys, ["01"])
+    assert_equals_with_expect(team.available_jerseys, available - ["01"])
+
+    team.send(:return_jersey, "01")
+    assert_equals_with_expect(team.taken_jerseys, [])
+    assert_equals_with_expect(team.available_jerseys, available)
+
+    team.send(:take_jersey, "04")
+    assert_equals_with_expect(team.taken_jerseys, ["04"])
+    assert_equals_with_expect(team.available_jerseys, available)
+
+    team.send(:return_jersey, "04")
+    assert_equals_with_expect(team.taken_jerseys, [])
+    assert_equals_with_expect(team.available_jerseys, available + ["04"])
+  end
 end
