@@ -15,6 +15,12 @@
     <%= f.label :name %><br>
     <%= f.text_field :name %>
   </div>
+
+  <dif class="field">
+    <%= f.label :available_jerseys %><br>
+    <%= f.text_field :available_jerseys, value: @team.available_jerseys.join(", ") %>
+  </div>
+
   <div class="actions">
     <%= f.submit %>
   </div>

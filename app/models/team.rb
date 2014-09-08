@@ -1,10 +1,12 @@
 class Team < ActiveRecord::Base
   has_many :stats
-  has_many :teams_players
+  has_many :teams_players, dependent: :destroy
   has_many :players, through: :teams_players
 
   serialize :available_jerseys
   serialize :taken_jerseys
+
+  before_validation :update_available_jerseys
 
   def team_player(player)
     found_player = player.present? ? teams_players.find_by(player_id: player.id) : nil
@@ -14,6 +16,13 @@ class Team < ActiveRecord::Base
 
   def add_player(player, jersey = nil)
     teams_players << TeamsPlayer.create(team_id: self.id, player_id: player.id, jersey: (jersey.blank? ? "" : take_jersey(jersey))) if player.present?
+  end
+
+  def remove_player(player)
+    if player.present?
+      unassign_jersey(player)
+      team_player(player).destroy
+    end
   end
 
   def player_jersey(player)
@@ -67,5 +76,11 @@ class Team < ActiveRecord::Base
     pile.reject!(&:empty?)
     pile.uniq!
     pile.sort!
+  end
+
+  def update_available_jerseys
+    if available_jerseys_changed? and available_jerseys.is_a?(String)
+      self.available_jerseys = self.available_jerseys.split(',').collect(&:strip)
+    end
   end
 end

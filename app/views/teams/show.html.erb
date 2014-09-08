@@ -19,18 +19,39 @@
   <strong>Roster:</strong>
   <table>
     <thead>
+      <th></th>
       <th>Player Name</th>
       <th>Jersey</th>
+      <th></th>
     </thead>
     <tbody>
       <% @team.players.each do |player| %>
         <tr>
-          <td><%= player.full_name %></td>
-          <td class="number"><%= @team.player_jersey(player) %></td>
+          <td><%= link_to "Boot", remove_player_team_path(@team, player_id: player.id), method: :post, data: { confirm: 'Are you sure?' } %></td>
+          <td><%= link_to player.full_name, player_path(player) %></td>
+          <td class="number">
+            <% if @team.player_jersey(player).blank? %>
+              <%= form_tag(add_jersey_to_player_team_path(@team), method: "post") do %>
+                <%= hidden_field_tag(:player_id, player.id.to_s) %>
+                <%= select_tag(:jersey, available_jersey_select(@team), prompt: "Jersey", onchange: "this.form.submit()") %>
+              <% end %>
+            <% else %>
+              <%= @team.player_jersey(player) %>
+            <% end %>
+          </td>
+          <td><%= @team.player_jersey(player).blank? ? "" : link_to("(remove)", recover_jersey_from_player_team_path(@team, player_id: player.id), method: :post) %></td>
         </tr>
       <% end %>
     </tbody>
   </table>
+</p>
+
+<p>
+  <%= form_tag(add_player_team_path(@team), method: "post") do %>
+    <%= select_tag(:player_id, options_from_collection_for_select(Player.where.not(id: @team.players.pluck(:id)), "id", "full_name"), prompt: "Add a Player") %>
+    <%= select_tag(:jersey, available_jersey_select(@team), prompt: "Jersey") %>
+    <%= submit_tag("Add Player") %>
+  <% end %>
 </p>
 
 <%= link_to 'Edit', edit_team_path(@team) %> |

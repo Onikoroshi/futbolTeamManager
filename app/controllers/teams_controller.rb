@@ -1,5 +1,7 @@
 class TeamsController < ApplicationController
-  before_action :set_team, only: [:show, :edit, :update, :destroy]
+  before_action :set_team, only: [:show, :edit, :update, :destroy, :add_player, :remove_player, :add_jersey_to_player, :recover_jersey_from_player]
+  before_action :set_player, only: [:add_player, :remove_player, :add_jersey_to_player, :recover_jersey_from_player]
+  before_action :set_jersey, only: [:add_player, :add_jersey_to_player]
 
   # GET /teams
   # GET /teams.json
@@ -61,14 +63,61 @@ class TeamsController < ApplicationController
     end
   end
 
+  # POST /teams/1/add_player
+  # possible params:
+  #   player_id
+  #   jersey
+  def add_player
+    @team.add_player(@player, @jersey)
+
+    redirect_to team_path(@team)
+  end
+
+  # POST /teams/1/remove_player
+  # possible params:
+  #   player_id
+  def remove_player
+    @team.remove_player(@player)
+
+    redirect_to team_path(@team)
+  end
+
+  # POST /teams/1/add_jersey_to_player
+  # possible params:
+  #   player_id
+  #   jersey
+  def add_jersey_to_player
+    @team.assign_jersey(@player, @jersey)
+
+    redirect_to team_path(@team)
+  end
+
+  # POST /teams/1/add_jersey_to_player
+  # possible params:
+  #   player_id
+  #   jersey
+  def recover_jersey_from_player
+    @team.unassign_jersey(@player)
+
+    redirect_to team_path(@team)
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_team
       @team = Team.find(params[:id])
     end
 
+    def set_player
+      @player = Player.find_by(id: params[:player_id])
+    end
+
+    def set_jersey
+      @jersey = params[:jersey]
+    end
+
     # Never trust parameters from the scary internet, only allow the white list through.
     def team_params
-      params.require(:team).permit(:name)
+      params.require(:team).permit(:name, :available_jerseys)
     end
 end

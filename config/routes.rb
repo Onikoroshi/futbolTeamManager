@@ -1,5 +1,12 @@
 Rails.application.routes.draw do
-  resources :teams
+  resources :teams do
+    member do
+      post 'add_player'
+      post 'remove_player'
+      post 'add_jersey_to_player'
+      post 'recover_jersey_from_player'
+    end
+  end
 
   resources :players
 

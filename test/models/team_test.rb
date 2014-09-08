@@ -33,6 +33,40 @@ class TeamTest < ActiveSupport::TestCase
     assert_equals_with_expect(team.player_jersey(player2), jersey)
   end
 
+  test "properly removes a given player from the team" do
+    team = teams(:one)
+    player = players(:one)
+    jersey = "00"
+
+    assert_equals_with_expect(team.players.count, 0)
+    assert_equals_with_expect(player.teams.count, 0)
+    assert_equals_with_expect(TeamsPlayer.where(team_id: team.id, player_id: player.id).count, 0)
+    assert_equals_with_expect(team.taken_jerseys, [])
+    assert_equals_with_expect(team.available_jerseys, [])
+
+    team.add_player(player, jersey)
+    assert_equals_with_expect(team.players.count, 1)
+    assert_equals_with_expect(player.teams.count, 1)
+    assert_equals_with_expect(TeamsPlayer.where(team_id: team.id, player_id: player.id).count, 1)
+    assert_equals_with_expect(team.taken_jerseys, ["00"])
+    assert_equals_with_expect(team.available_jerseys, [])
+
+    player2 = players(:two)
+    team.remove_player(player2) # silently fails when the player is not already a teammember
+    assert_equals_with_expect(team.players.count, 1)
+    assert_equals_with_expect(player.teams.count, 1)
+    assert_equals_with_expect(TeamsPlayer.where(team_id: team.id, player_id: player.id).count, 1)
+    assert_equals_with_expect(team.taken_jerseys, ["00"])
+    assert_equals_with_expect(team.available_jerseys, [])
+
+    team.remove_player(player)
+    assert_equals_with_expect(team.players.count, 0)
+    assert_equals_with_expect(player.teams.count, 0)
+    assert_equals_with_expect(TeamsPlayer.where(team_id: team.id, player_id: player.id).count, 0)
+    assert_equals_with_expect(team.taken_jerseys, [])
+    assert_equals_with_expect(team.available_jerseys, ["00"])
+  end
+
   test "gets proper jersey for a given player" do
     team = teams(:one)
     player = players(:one)

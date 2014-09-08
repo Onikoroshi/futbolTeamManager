@@ -22,7 +22,7 @@
     <tbody>
       <% @player.teams.each do |team| %>
         <tr>
-          <td><%= team.name %></td>
+          <td><%= link_to team.name, team_path(team) %></td>
           <td class="number"><%= @player.team_jersey(team) %></td>
         </tr>
       <% end %>

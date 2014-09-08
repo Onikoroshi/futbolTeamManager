@@ -1,6 +1,6 @@
 class Player < ActiveRecord::Base
   has_many :stats
-  has_many :teams_players
+  has_many :teams_players, dependent: :destroy
   has_many :teams, through: :teams_players
 
   def full_name
