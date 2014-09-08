@@ -12,6 +12,12 @@ p, ol, ul, td {
   line-height: 18px;
 }
 
+td {
+  &.number {
+    text-align: right;
+  }
+}
+
 pre {
   background-color: #eee;
   padding: 10px;

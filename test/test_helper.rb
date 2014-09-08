@@ -10,4 +10,11 @@ class ActiveSupport::TestCase
   fixtures :all
 
   # Add more helper methods to be used by all tests here...
+  def assert_equals_with_expect(left, right)
+    assert left == right, expect_got(right, left)
+  end
+
+  def expect_got(expected, got)
+    "expected '" + expected.to_s + "' - got '" + got.to_s + "'"
+  end
 end

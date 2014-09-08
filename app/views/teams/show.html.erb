@@ -1,0 +1,37 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Name:</strong>
+  <%= @team.name %>
+</p>
+
+<p>
+  <strong>Available Jerseys:</strong>
+  <%= @team.available_jerseys.join(", ") %>
+</p>
+
+<p>
+  <strong>Taken Jerseys:</strong>
+  <%= @team.taken_jerseys.join(", ") %>
+</p>
+
+<p>
+  <strong>Roster:</strong>
+  <table>
+    <thead>
+      <th>Player Name</th>
+      <th>Jersey</th>
+    </thead>
+    <tbody>
+      <% @team.players.each do |player| %>
+        <tr>
+          <td><%= player.full_name %></td>
+          <td class="number"><%= @team.player_jersey(player) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</p>
+
+<%= link_to 'Edit', edit_team_path(@team) %> |
+<%= link_to 'Back', teams_path %>

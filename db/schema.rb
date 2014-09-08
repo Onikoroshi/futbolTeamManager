@@ -11,9 +11,36 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 0) do
+ActiveRecord::Schema.define(version: 20140907225213) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "players", force: true do |t|
+    t.string   "first_name"
+    t.string   "last_name"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "teams", force: true do |t|
+    t.string   "name"
+    t.text     "available_jerseys", default: "--- []\n"
+    t.text     "taken_jerseys",     default: "--- []\n"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "teams_players", force: true do |t|
+    t.integer  "team_id"
+    t.integer  "player_id"
+    t.string   "jersey"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "teams_players", ["player_id", "team_id"], name: "index_teams_players_on_player_id_and_team_id", unique: true, using: :btree
+  add_index "teams_players", ["player_id"], name: "index_teams_players_on_player_id", using: :btree
+  add_index "teams_players", ["team_id"], name: "index_teams_players_on_team_id", using: :btree
 
 end
