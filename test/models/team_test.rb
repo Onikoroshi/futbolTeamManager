@@ -4,7 +4,7 @@ class TeamTest < ActiveSupport::TestCase
   test "find the proper teams_player object for a given player" do
     team = teams(:one)
 
-    assert team.team_player(nil) == nil, expect_got("nil", team.team_player(nil).to_s)
+    assert team.team_player(nil).class == EmptyTeamsPlayer.new.class, expect_got(EmptyTeamsPlayer.new.class, team.team_player(nil).to_s.class)
 
     player = players(:one)
     team.add_player(player)
@@ -47,6 +47,17 @@ class TeamTest < ActiveSupport::TestCase
   test "assigns a given jersey to the given player" do
     team = teams(:one)
     player = players(:one)
+    jersey = "00"
+
+    assert !team.players.include?(player)
+
+    team.assign_jersey(player, jersey) # nothing happens if the player isn't a part of the team
+
+    assert_equals_with_expect(team.player_jersey(player), "")
+    assert_equals_with_expect(player.team_jersey(team), "")
+    assert_equals_with_expect(team.taken_jerseys, [])
+    assert_equals_with_expect(team.available_jerseys, [])
+
     team.add_player(player)
 
     assert team.players.include?(player), expect_got(player.first_name, team.players.pluck(:first_name))
@@ -55,7 +66,6 @@ class TeamTest < ActiveSupport::TestCase
     assert_equals_with_expect(team.taken_jerseys, [])
     assert_equals_with_expect(team.available_jerseys, [])
 
-    jersey = "00"
     team.assign_jersey(player, jersey)
 
     assert_equals_with_expect(team.taken_jerseys, ["00"])
@@ -67,6 +77,16 @@ class TeamTest < ActiveSupport::TestCase
   test "chooses a jersey to assign if none specified" do
     team = teams(:one)
     player = players(:one)
+
+    assert !team.players.include?(player)
+
+    team.assign_jersey(player) # nothing happens if the player isn't a part of the team
+
+    assert_equals_with_expect(team.player_jersey(player), "")
+    assert_equals_with_expect(player.team_jersey(team), "")
+    assert_equals_with_expect(team.taken_jerseys, [])
+    assert_equals_with_expect(team.available_jerseys, [])
+
     team.add_player(player)
 
     assert team.players.include?(player), expect_got(player.first_name, team.players.pluck(:first_name))

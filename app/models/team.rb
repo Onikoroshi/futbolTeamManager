@@ -7,7 +7,9 @@ class Team < ActiveRecord::Base
   serialize :taken_jerseys
 
   def team_player(player)
-    player.present? ? teams_players.find_by(player_id: player.id) : nil
+    found_player = player.present? ? teams_players.find_by(player_id: player.id) : nil
+
+    found_player.present? ? found_player : EmptyTeamsPlayer.new
   end
 
   def add_player(player, jersey = nil)
@@ -15,21 +17,23 @@ class Team < ActiveRecord::Base
   end
 
   def player_jersey(player)
-    found_player = team_player(player)
-    found_player.present? ? found_player.jersey : ""
+    team_player(player).jersey
   end
 
   def assign_jersey(player, jersey = nil)
-    found_player = team_player(player)
-    found_player.update_attributes(jersey: take_jersey(jersey)) if found_player.present?
+    jerseys_were_available = available_jerseys.any?
+    given_jersey = take_jersey(jersey)
+
+    unless team_player(player).update_attributes(jersey: given_jersey)
+      return_jersey(given_jersey, jerseys_were_available)
+    end
   end
 
   def unassign_jersey(player)
     found_player = team_player(player)
-    if found_player.present?
-      return_jersey(found_player.jersey)
-      found_player.update_attributes(jersey: "")
-    end
+
+    return_jersey(found_player.jersey)
+    found_player.update_attributes(jersey: "")
   end
 
   private
@@ -50,10 +54,10 @@ class Team < ActiveRecord::Base
     chosen_jersey.to_s
   end
 
-  def return_jersey(jersey)
-    if jersey.present? && taken_jerseys.include?(jersey)
+  def return_jersey(jersey, jerseys_were_available = true)
+    if !jersey.blank? && taken_jerseys.include?(jersey)
       taken_jerseys.delete(jersey)
-      add_to_pile(available_jerseys, jersey)
+      add_to_pile(available_jerseys, jersey) if jerseys_were_available
       save
     end
   end
