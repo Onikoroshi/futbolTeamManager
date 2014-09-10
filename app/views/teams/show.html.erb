@@ -33,7 +33,7 @@
             <% if @team.player_jersey(player).blank? %>
               <%= form_tag(add_jersey_to_player_team_path(@team), method: "post") do %>
                 <%= hidden_field_tag(:player_id, player.id.to_s) %>
-                <%= select_tag(:jersey, available_jersey_select(@team), prompt: "Jersey", onchange: "this.form.submit()") %>
+                <%= select_tag(:jersey, available_jersey_select(@team), include_blank: true, onchange: "this.form.submit()") %>
               <% end %>
             <% else %>
               <%= @team.player_jersey(player) %>
@@ -51,6 +51,18 @@
     <%= select_tag(:player_id, options_from_collection_for_select(Player.where.not(id: @team.players.pluck(:id)), "id", "full_name"), prompt: "Add a Player") %>
     <%= select_tag(:jersey, available_jersey_select(@team), prompt: "Jersey") %>
     <%= submit_tag("Add Player") %>
+  <% end %>
+</p>
+
+<p>
+  <%= form_for(@player) do |f| %>
+    <%= hidden_field_tag :team_id, @team.id %>
+    <%= f.label :first_name %>
+    <%= f.text_field :first_name %>
+    <%= f.label :last_name %>
+    <%= f.text_field :last_name %>
+    <%= select_tag(:jersey, available_jersey_select(@team), prompt: "Jersey") %>
+    <%= f.submit("Create and Add Player") %>
   <% end %>
 </p>
 

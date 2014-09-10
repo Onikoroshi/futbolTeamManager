@@ -1,5 +1,5 @@
 class TeamsController < ApplicationController
-  before_action :set_team, only: [:show, :edit, :update, :destroy, :add_player, :remove_player, :add_jersey_to_player, :recover_jersey_from_player]
+  before_action :set_team, except: [:index, :new, :create]
   before_action :set_player, only: [:add_player, :remove_player, :add_jersey_to_player, :recover_jersey_from_player]
   before_action :set_jersey, only: [:add_player, :add_jersey_to_player]
 
@@ -12,6 +12,7 @@ class TeamsController < ApplicationController
   # GET /teams/1
   # GET /teams/1.json
   def show
+    @player = Player.new
   end
 
   # GET /teams/new
@@ -103,9 +104,9 @@ class TeamsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
+
     def set_team
-      @team = Team.find(params[:id])
+      @team = Team.find_by(id: params[:id])
     end
 
     def set_player
@@ -116,7 +117,6 @@ class TeamsController < ApplicationController
       @jersey = params[:jersey]
     end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
     def team_params
       params.require(:team).permit(:name, :available_jerseys)
     end

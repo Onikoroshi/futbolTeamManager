@@ -26,11 +26,21 @@ class PlayersController < ApplicationController
   def create
     @player = Player.new(player_params)
 
+    @team = Team.find_by(id: params[:team_id])
+    @jersey = params[:jersey]
+
     respond_to do |format|
       if @player.save
-        format.html { redirect_to @player, notice: 'Player was successfully created.' }
-        format.json { render :show, status: :created, location: @player }
+        if @team.present?
+          @team.add_player(@player, @jersey)
+          format.html { redirect_to @team, notice: 'Player was successfully created and added.' }
+          format.json { render :show, status: :created, location: @player }
+        else
+          format.html { redirect_to @player, notice: 'Player was successfully created.' }
+          format.json { render :show, status: :created, location: @player }
+        end
       else
+        @team_id = params[:team_id]
         format.html { render :new }
         format.json { render json: @player.errors, status: :unprocessable_entity }
       end
