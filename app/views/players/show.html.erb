@@ -1,0 +1,34 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>First name:</strong>
+  <%= @player.first_name %>
+</p>
+
+<p>
+  <strong>Last name:</strong>
+  <%= @player.last_name %>
+</p>
+
+<p>
+  <strong>on Teams:</strong>
+  <table>
+    <thead>
+      <tr>
+        <th>Team Name</th>
+        <th>Jersey</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @player.teams.each do |team| %>
+        <tr>
+          <td><%= link_to team.name, team_path(team) %></td>
+          <td class="number"><%= @player.team_jersey(team) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</p>
+
+<%= link_to 'Edit', edit_player_path(@player) %> |
+<%= link_to 'Back', players_path %>

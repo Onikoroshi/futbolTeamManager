@@ -1,4 +1,15 @@
 Rails.application.routes.draw do
+  resources :teams do
+    member do
+      post 'add_player'
+      post 'remove_player'
+      post 'add_jersey_to_player'
+      post 'recover_jersey_from_player'
+    end
+  end
+
+  resources :players
+
   root 'welcome#index'
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
