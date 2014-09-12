@@ -6,7 +6,7 @@ class Player < ActiveRecord::Base
   before_validation :build_combined_name
 
   validates :first_name, :last_name, presence: true
-  validates :combined_name, uniqueness: true
+  validates :combined_name, uniqueness: { message: "Another player with a too-similar name already exists" }
 
   def full_name
     [first_name, last_name].reject(&:empty?).join(" ")
@@ -24,8 +24,6 @@ class Player < ActiveRecord::Base
   private
 
   def build_combined_name
-    puts "first name: " + first_name.to_s
-    puts "last name: " + last_name.to_s
-    self.combined_name = self.first_name.to_s.downcase + self.last_name.downcase.to_s
+    self.combined_name = Manipulator.combine(first_name, last_name)
   end
 end

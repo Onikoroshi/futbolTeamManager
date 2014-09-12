@@ -6,7 +6,10 @@ class Team < ActiveRecord::Base
   serialize :available_jerseys
   serialize :taken_jerseys
 
-  before_validation :update_available_jerseys
+  before_validation :update_available_jerseys, :build_combined_name
+
+  validates :name, presence: true
+  validates :combined_name, uniqueness: { message: "Another team with a too-similar name already exists" }
 
   def team_player(player)
     found_player = player.present? ? teams_players.find_by(player_id: player.id) : nil
@@ -82,5 +85,9 @@ class Team < ActiveRecord::Base
     if available_jerseys_changed? and available_jerseys.is_a?(String)
       self.available_jerseys = self.available_jerseys.split(',').collect(&:strip)
     end
+  end
+
+  def build_combined_name
+    self.combined_name = Manipulator.combine(self.name)
   end
 end
