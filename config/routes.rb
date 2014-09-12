@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  resources :stat_types
+
   resources :teams do
     member do
       post 'add_player'

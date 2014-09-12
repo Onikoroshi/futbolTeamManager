@@ -1,0 +1,14 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Name:</strong>
+  <%= @stat_type.name %>
+</p>
+
+<p>
+  <strong>Identifier:</strong>
+  <%= @stat_type.identifier %>
+</p>
+
+<%= link_to 'Edit', edit_stat_type_path(@stat_type) %> |
+<%= link_to 'Back', stat_types_path %>

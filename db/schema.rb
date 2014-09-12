@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140910053459) do
+ActiveRecord::Schema.define(version: 20140912040605) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -23,6 +23,25 @@ ActiveRecord::Schema.define(version: 20140910053459) do
     t.datetime "updated_at"
     t.string   "combined_name"
   end
+
+  create_table "stat_types", force: true do |t|
+    t.string   "name"
+    t.string   "identifier"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "stats", force: true do |t|
+    t.integer  "player_id"
+    t.integer  "team_id"
+    t.decimal  "value"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "stats", ["player_id", "team_id"], name: "index_stats_on_player_id_and_team_id", unique: true, using: :btree
+  add_index "stats", ["player_id"], name: "index_stats_on_player_id", using: :btree
+  add_index "stats", ["team_id"], name: "index_stats_on_team_id", using: :btree
 
   create_table "teams", force: true do |t|
     t.string   "name"
