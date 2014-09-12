@@ -11,6 +11,8 @@ class Team < ActiveRecord::Base
   validates :name, :combined_name, presence: true
   validates :combined_name, uniqueness: { message: "Another team with a too-similar name already exists" }
 
+  before_destroy :merge_stats
+
   def team_player(player)
     found_player = player.present? ? teams_players.find_by(player_id: player.id) : nil
 
@@ -57,28 +59,26 @@ class Team < ActiveRecord::Base
   end
 
   def decrement_player_stat(stat_type, player)
-    stat = build_player_stat_object(stat_type, player)
-    old_value = stat.value
-
-    stat.update_attributes(value: old_value - 1) if stat.can_decrement?
+    build_player_stat_object(stat_type, player).decrement
   end
 
   def increment_player_stat(stat_type, player)
-    stat = build_player_stat_object(stat_type, player)
-    old_value = stat.value
+    build_player_stat_object(stat_type, player).increment
+  end
 
-    stat.update_attributes(value: old_value + 1)
+  def empty_team?
+    false
   end
 
   private
 
   def build_player_stat_object(stat_type, player)
-    stat_obj = (stat_type.present? && player.present?) ? stats.where(stat_type_id: stat_type.id, team_id: self.id, player_id: player.id).first_or_create : nil
+    stat_obj = (self.players.include?(player) && stat_type.present? && player.present?) ? stats.where(stat_type_id: stat_type.id, team_id: self.id, player_id: player.id).first_or_create : nil
     (stat_obj.present? && stat_obj.valid?) ? stat_obj : EmptyStat.new
   end
 
   def get_player_stat_object(stat_type, player)
-    found_stat = (stat_type.present? && player.present?) ? stats.find_by(stat_type_id: stat_type.id, team_id: self.id, player_id: player.id) : nil
+    found_stat = (self.players.include?(player) && stat_type.present? && player.present?) ? stats.find_by(stat_type_id: stat_type.id, team_id: self.id, player_id: player.id) : nil
     found_stat.present? ? found_stat : EmptyStat.new
   end
 
@@ -88,7 +88,7 @@ class Team < ActiveRecord::Base
     unless given_jersey.blank?
       chosen_jersey = given_jersey
     else
-      chosen_jersey = available_jerseys.any? ? available_jerseys.sample : rand(20).to_s.rjust(2, "0")
+      chosen_jersey = available_jerseys.any? ? available_jerseys.sample : random_untaken_jersey
     end
 
     available_jerseys.delete(chosen_jersey)
@@ -96,6 +96,14 @@ class Team < ActiveRecord::Base
     save
 
     chosen_jersey.to_s
+  end
+
+  def random_untaken_jersey
+    to_try = rand(20).to_s.rjust(2, "0")
+    while taken_jerseys.include?(to_try)
+      to_try = (to_try.to_i + 1).to_s.rjust(2, "0")
+    end
+    to_try
   end
 
   def return_jersey(jersey, jerseys_were_available = true)
@@ -121,5 +129,24 @@ class Team < ActiveRecord::Base
 
   def build_combined_name
     self.combined_name = Manipulator.combine(self.name)
+  end
+
+  # When we delete a team, we don't want to lose all the stats the player accumulated while on that team.
+  # However, when an orphaned stat already exists, we can't have a duplicate, so we add what the player got from this team
+  # to what they already have in the orphaned stat.
+  def merge_stats
+    # player_ids has already been destroyed
+    destinations = Stat.where(player_id: self.stats.pluck(:player_id).uniq, team_id: nil) # all the orphaned stats
+    stats_to_merge = self.stats.where(player_id: destinations.pluck(:player_id), stat_type: destinations.pluck(:stat_type_id)) # all this team's player's stats that match the orphaned stats
+
+    stats_to_merge.each do |to_merge|
+      destination = destinations.find_by(player_id: to_merge.player_id, stat_type_id: to_merge.stat_type_id)
+      destination.add_to(to_merge.value.to_f)
+      to_merge.destroy # make sure we destroy the team's player's stat at the end
+    end
+
+    # Destroying a team is not automatically setting the "team_id" in the join table to nil
+    # So, do that for all stats still associated with this team.
+    self.stats.map{ |stat| stat.update_attributes(team_id: nil) }
   end
 end

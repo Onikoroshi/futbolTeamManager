@@ -1,5 +1,5 @@
 class Player < ActiveRecord::Base
-  has_many :stats
+  has_many :stats, dependent: :destroy
   has_many :teams_players, dependent: :destroy
   has_many :teams, through: :teams_players
 
@@ -19,6 +19,25 @@ class Player < ActiveRecord::Base
   def team_jersey(team)
     found_team = player_team(team)
     found_team.present? ? found_team.jersey : ""
+  end
+
+  def player_stat(stat_type)
+    found_stat = stat_type.present? ? stats.find_by(stat_type_id: stat_type.id, team_id: nil) : nil
+    found_stat.nil? ? EmptyStat.new : found_stat
+  end
+
+  def team_stat(stat_type, team)
+    found_stat = (stat_type.present? && team.present?) ? stats.find_by(stat_type_id: stat_type.id, team_id: team.id) : nil
+    found_stat.nil? ? EmptyStat.new : found_stat
+  end
+
+  def team_stat_value(stat_type, team)
+    team_stat(stat_type, team).value
+  end
+
+  def total_stat_value(stat_type)
+    found_stats = self.stats.where(stat_type_id: stat_type.id)
+    found_stats.to_a.inject(0){ |sum, stat| sum + stat.value }
   end
 
   private

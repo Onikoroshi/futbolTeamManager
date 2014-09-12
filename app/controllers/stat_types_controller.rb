@@ -69,6 +69,6 @@ class StatTypesController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def stat_type_params
-      params.require(:stat_type).permit(:name, :identifier)
+      params.require(:stat_type).permit(:name)
     end
 end

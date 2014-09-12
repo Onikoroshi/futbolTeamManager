@@ -197,7 +197,7 @@ class TeamTest < ActiveSupport::TestCase
     assert_equals_with_expect(team.available_jerseys, available)
 
     taken = team.send(:take_jersey)
-    assert_equals_with_expect(team.taken_jerseys, ["04"] + [taken])
+    assert_equals_with_expect(team.taken_jerseys, (["04"] + [taken]).sort)
     assert_equals_with_expect(team.available_jerseys, available)
   end
 
@@ -230,5 +230,57 @@ class TeamTest < ActiveSupport::TestCase
     team.send(:return_jersey, "04")
     assert_equals_with_expect(team.taken_jerseys, [])
     assert_equals_with_expect(team.available_jerseys, available + ["04"])
+  end
+
+  test "when destroyed, orphan or update stats as needed" do
+    team = teams(:one)
+    player = players(:one)
+    team.add_player(player)
+    assert team.player_ids.count == 1
+    stat_type = stat_types(:one)
+    value = 5
+    stat = stats(:one)
+    stat.update_attributes(stat_type_id: stat_type.id, team_id: team.id, player_id: player.id, value: value.to_f)
+
+    old_player_count = Player.count
+    old_team_count = Team.count
+    old_stat_count = Stat.count
+
+    assert old_player_count > 0, "Should have some players"
+    assert old_team_count > 0, "Should have some teams"
+    assert old_stat_count > 0, "Should have some stats"
+
+    team.destroy
+
+    assert_equals_with_expect(Player.count, old_player_count)
+    assert_equals_with_expect(Team.count, old_team_count-1)
+    assert_equals_with_expect(Stat.count, old_stat_count)
+
+    assert_equals_with_expect(player.stats.count, 1)
+    assert_equals_with_expect(Stat.where(player_id: player.id, team_id: nil).count, 1)
+    assert_equals_with_expect(player.stats.first.value, value.to_f)
+
+    team2 = teams(:two)
+    team2.add_player(player)
+    assert team2.player_ids.count == 1
+    stat2 = stats(:two)
+    value2 = 4
+    stat2.update_attributes(stat_type_id: stat_type.id, team_id: team2.id, player_id: player.id, value: value2.to_f)
+
+    old_team_count -= 1
+
+    assert_equals_with_expect(Player.count, old_player_count)
+    assert_equals_with_expect(Team.count, old_team_count)
+    assert_equals_with_expect(Stat.count, old_stat_count)
+
+    team2.destroy
+
+    assert_equals_with_expect(Player.count, old_player_count)
+    assert_equals_with_expect(Team.count, old_team_count-1)
+    assert_equals_with_expect(Stat.count, old_stat_count-1)
+
+    assert_equals_with_expect(player.stats.count, 1)
+    assert_equals_with_expect(Stat.where(player_id: player.id, team_id: nil).count, 1)
+    assert_equals_with_expect(player.stats.first.value, (value.to_f+value2.to_f))
   end
 end

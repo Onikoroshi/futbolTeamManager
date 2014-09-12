@@ -10,6 +10,7 @@ class PlayersController < ApplicationController
   # GET /players/1
   # GET /players/1.json
   def show
+    @teams_list = [EmptyTeam.new] + @player.teams.to_a
   end
 
   # GET /players/new
