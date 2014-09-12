@@ -17,6 +17,9 @@
       <tr>
         <th>Team Name</th>
         <th>Jersey</th>
+        <% StatType.find_each do |stat_type| %>
+          <th><%= stat_type.name %></th>
+        <% end %>
       </tr>
     </thead>
     <tbody>
@@ -24,6 +27,9 @@
         <tr>
           <td><%= link_to team.name, team_path(team) %></td>
           <td class="number"><%= @player.team_jersey(team) %></td>
+          <% StatType.find_each do |stat_type| %>
+            <td class="centered"><%= display_number(team.player_stat_value(stat_type, @player)) %></td>
+          <% end %>
         </tr>
       <% end %>
     </tbody>

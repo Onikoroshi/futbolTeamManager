@@ -1,10 +1,14 @@
 Rails.application.routes.draw do
+  resources :stat_types
+
   resources :teams do
     member do
       post 'add_player'
       post 'remove_player'
       post 'add_jersey_to_player'
       post 'recover_jersey_from_player'
+      post 'increment_player_stat'
+      post 'decrement_player_stat'
     end
   end
 

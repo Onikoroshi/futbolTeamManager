@@ -1,0 +1,2 @@
+module StatTypesHelper
+end
