@@ -3,9 +3,11 @@
 one:
   player_id:
   team_id:
+  stat_type_id:
   value: 0
 
 two:
   player_id:
   team_id:
+  stat_type_id:
   value: 0

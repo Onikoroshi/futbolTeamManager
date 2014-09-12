@@ -57,17 +57,11 @@ class Team < ActiveRecord::Base
   end
 
   def decrement_player_stat(stat_type, player)
-    stat = build_player_stat_object(stat_type, player)
-    old_value = stat.value
-
-    stat.update_attributes(value: old_value - 1) if stat.can_decrement?
+    build_player_stat_object(stat_type, player).decrement
   end
 
   def increment_player_stat(stat_type, player)
-    stat = build_player_stat_object(stat_type, player)
-    old_value = stat.value
-
-    stat.update_attributes(value: old_value + 1)
+    build_player_stat_object(stat_type, player).increment
   end
 
   private

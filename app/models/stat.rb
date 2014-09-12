@@ -3,19 +3,32 @@ class Stat < ActiveRecord::Base
   belongs_to :team
   belongs_to :stat_type
 
-  validates :stat_type, presence: true
-  validate :player_or_team_present
+  # It's ok to have orphan player stats, because a player can have stats
+  # independant of a team. However, a team cannot have stats by itself,
+  # so at least the player id must be present
+  validates :stat_type, :player, presence: true
 
   def can_decrement?
-    value.present? && value >= 1
+    value.present? && value >= 1.0
   end
 
-  private
-
-  def player_or_team_present
-    unless player.present? || team.present?
-      errors.add(:team_player, "Must belong to either a player, a team, or both")
+  def decrement
+    if can_decrement?
+      self.value -= 1
+      save
+    else
+      false
     end
+  end
+
+  def increment
+    self.value += 1
+    save
+  end
+
+  def add_to(amount)
+    self.value += amount.to_f
+    save
   end
 end
 

@@ -197,7 +197,7 @@ class TeamTest < ActiveSupport::TestCase
     assert_equals_with_expect(team.available_jerseys, available)
 
     taken = team.send(:take_jersey)
-    assert_equals_with_expect(team.taken_jerseys, ["04"] + [taken])
+    assert_equals_with_expect(team.taken_jerseys, (["04"] + [taken]).sort)
     assert_equals_with_expect(team.available_jerseys, available)
   end
 
