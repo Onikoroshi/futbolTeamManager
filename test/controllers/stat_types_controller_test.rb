@@ -18,7 +18,7 @@ class StatTypesControllerTest < ActionController::TestCase
 
   test "should create stat_type" do
     assert_difference('StatType.count') do
-      post :create, stat_type: { identifier: @stat_type.identifier, name: @stat_type.name }
+      post :create, stat_type: { name: @stat_type.name }
     end
 
     assert_redirected_to stat_type_path(assigns(:stat_type))
@@ -35,7 +35,7 @@ class StatTypesControllerTest < ActionController::TestCase
   end
 
   test "should update stat_type" do
-    patch :update, id: @stat_type, stat_type: { identifier: @stat_type.identifier, name: @stat_type.name }
+    patch :update, id: @stat_type, stat_type: { name: @stat_type.name }
     assert_redirected_to stat_type_path(assigns(:stat_type))
   end
 

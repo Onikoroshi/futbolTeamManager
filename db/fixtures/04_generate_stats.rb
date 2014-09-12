@@ -1,7 +1,7 @@
 Team.find_each do |team|
   puts "Team: " + team.name
 
-  Player.find_each do |player|
+  team.players.find_each do |player|
     puts "\tPlayer: " + player.full_name
 
     StatType.find_each do |stat_type|

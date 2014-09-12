@@ -23,15 +23,27 @@
       </tr>
     </thead>
     <tbody>
-      <% @player.teams.each do |team| %>
+      <% @teams_list.each do |team| %>
         <tr>
-          <td><%= link_to team.name, team_path(team) %></td>
+          <td>
+            <% if team.empty_team? %>
+              <strong><%= team.name %></strong>
+            <% else %>
+              <%= link_to team.name, team_path(team) %>
+            <% end %>
+          </td>
           <td class="number"><%= @player.team_jersey(team) %></td>
           <% StatType.find_each do |stat_type| %>
-            <td class="centered"><%= display_number(team.player_stat_value(stat_type, @player)) %></td>
+            <td class="centered"><%= display_number(@player.team_stat_value(stat_type, team)) %></td>
           <% end %>
         </tr>
       <% end %>
+      <tr>
+        <td></td>
+        <td><strong>Total:</strong></td>
+        <% StatType.find_each do |stat_type| %>
+          <td class="centered"><strong><%= display_number(@player.total_stat_value(stat_type)) %></strong></td>
+        <% end %>
     </tbody>
   </table>
 </p>

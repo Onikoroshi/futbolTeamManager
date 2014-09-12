@@ -46,4 +46,22 @@ class PlayerTest < ActiveSupport::TestCase
     team.add_player(player, jersey)
     assert_equals_with_expect(player.team_jersey(team), jersey)
   end
+
+  test "destroys stat objects when destroyed" do
+    player = players(:one)
+    team = teams(:one)
+    team.add_player(player)
+    stat_type = stat_types(:one)
+    value = 5
+    stat = team.update_player_stat(stat_type, player, value)
+
+    old_player_count = Player.count
+    old_stat_count = Stat.count
+    assert old_player_count > 0, expect_got("should be some players", old_player_count)
+    assert old_stat_count > 0, expect_got("should be some stats", old_stat_count)
+
+    player.destroy
+    assert_equals_with_expect(Player.count, old_player_count-1)
+    assert_equals_with_expect(Stat.count, old_stat_count-1)
+  end
 end
