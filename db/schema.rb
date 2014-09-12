@@ -34,13 +34,15 @@ ActiveRecord::Schema.define(version: 20140912043221) do
   create_table "stats", force: true do |t|
     t.integer  "player_id"
     t.integer  "team_id"
-    t.decimal  "value"
+    t.integer  "stat_type_id"
+    t.decimal  "value",        default: 0.0
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
-  add_index "stats", ["player_id", "team_id"], name: "index_stats_on_player_id_and_team_id", unique: true, using: :btree
+  add_index "stats", ["player_id", "team_id", "stat_type_id"], name: "index_stats_on_player_id_and_team_id_and_stat_type_id", unique: true, using: :btree
   add_index "stats", ["player_id"], name: "index_stats_on_player_id", using: :btree
+  add_index "stats", ["stat_type_id"], name: "index_stats_on_stat_type_id", using: :btree
   add_index "stats", ["team_id"], name: "index_stats_on_team_id", using: :btree
 
   create_table "teams", force: true do |t|

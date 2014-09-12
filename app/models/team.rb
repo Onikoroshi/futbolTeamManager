@@ -8,7 +8,7 @@ class Team < ActiveRecord::Base
 
   before_validation :update_available_jerseys, :build_combined_name
 
-  validates :name, presence: true
+  validates :name, :combined_name, presence: true
   validates :combined_name, uniqueness: { message: "Another team with a too-similar name already exists" }
 
   def team_player(player)
@@ -48,7 +48,39 @@ class Team < ActiveRecord::Base
     found_player.update_attributes(jersey: "")
   end
 
+  def player_stat_value(stat_type, player)
+    get_player_stat_object(stat_type, player).value
+  end
+
+  def update_player_stat(stat_type, player, value)
+    build_player_stat_object(stat_type, player).update_attributes(value: value)
+  end
+
+  def decrement_player_stat(stat_type, player)
+    stat = build_player_stat_object(stat_type, player)
+    old_value = stat.value
+
+    stat.update_attributes(value: old_value - 1) if stat.can_decrement?
+  end
+
+  def increment_player_stat(stat_type, player)
+    stat = build_player_stat_object(stat_type, player)
+    old_value = stat.value
+
+    stat.update_attributes(value: old_value + 1)
+  end
+
   private
+
+  def build_player_stat_object(stat_type, player)
+    stat_obj = (stat_type.present? && player.present?) ? stats.where(stat_type_id: stat_type.id, team_id: self.id, player_id: player.id).first_or_create : nil
+    (stat_obj.present? && stat_obj.valid?) ? stat_obj : EmptyStat.new
+  end
+
+  def get_player_stat_object(stat_type, player)
+    found_stat = (stat_type.present? && player.present?) ? stats.find_by(stat_type_id: stat_type.id, team_id: self.id, player_id: player.id) : nil
+    found_stat.present? ? found_stat : EmptyStat.new
+  end
 
   def take_jersey(given_jersey = nil)
     chosen_jersey = ""

@@ -22,12 +22,14 @@
       <th></th>
       <th>Player Name</th>
       <th>Jersey</th>
-      <th></th>
+      <% StatType.find_each do |stat_type| %>
+        <th><%= stat_type.name %></th>
+      <% end %>
     </thead>
     <tbody>
-      <% @team.players.each do |player| %>
-        <tr>
-          <td><%= link_to "Boot", remove_player_team_path(@team, player_id: player.id), method: :post, data: { confirm: 'Are you sure?' } %></td>
+      <% @team.players.each_with_index do |player, index| %>
+        <tr class="<%= index%2 == 0 ? "alt" : "" %>" >
+          <td><%= link_to "Remove", remove_player_team_path(@team, player_id: player.id), method: :post, data: { confirm: 'Are you sure?' } %></td>
           <td><%= link_to player.full_name, player_path(player) %></td>
           <td class="number">
             <% if @team.player_jersey(player).blank? %>
@@ -37,9 +39,16 @@
               <% end %>
             <% else %>
               <%= @team.player_jersey(player) %>
+              <%= @team.player_jersey(player).blank? ? "" : link_to(fa_icon("times"), recover_jersey_from_player_team_path(@team, player_id: player.id), method: :post) %>
             <% end %>
           </td>
-          <td><%= @team.player_jersey(player).blank? ? "" : link_to("(remove)", recover_jersey_from_player_team_path(@team, player_id: player.id), method: :post) %></td>
+          <% StatType.find_each do |stat_type| %>
+            <td class="centered">
+              <%= link_to(fa_icon("minus"), decrement_player_stat_team_path(@team, player_id: player.id, stat_type_id: stat_type.id), method: :post) %>
+              <%= display_number(@team.player_stat_value(stat_type, player)) %>
+              <%= link_to fa_icon("plus"), increment_player_stat_team_path(@team, player_id: player.id, stat_type_id: stat_type.id), method: :post %>
+            </td>
+          <% end %>
         </tr>
       <% end %>
     </tbody>

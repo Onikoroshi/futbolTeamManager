@@ -1,7 +1,8 @@
 class TeamsController < ApplicationController
   before_action :set_team, except: [:index, :new, :create]
-  before_action :set_player, only: [:add_player, :remove_player, :add_jersey_to_player, :recover_jersey_from_player]
+  before_action :set_player, except: [:index, :new, :create, :edit, :show, :create, :update, :destroy]
   before_action :set_jersey, only: [:add_player, :add_jersey_to_player]
+  before_action :set_stat_type, only: [:decrement_player_stat, :increment_player_stat]
 
   # GET /teams
   # GET /teams.json
@@ -103,6 +104,26 @@ class TeamsController < ApplicationController
     redirect_to team_path(@team)
   end
 
+  # POST /teams/1/decrement_player_stat
+  # possible params:
+  #   player_id
+  #   stat_type_id
+  def decrement_player_stat
+    @team.decrement_player_stat(@stat_type, @player)
+
+    redirect_to team_path(@team)
+  end
+
+  # POST /teams/1/increment_player_stat
+  # possible params:
+  #   player_id
+  #   stat_type_id
+  def increment_player_stat
+    @team.increment_player_stat(@stat_type, @player)
+
+    redirect_to team_path(@team)
+  end
+
   private
 
     def set_team
@@ -115,6 +136,10 @@ class TeamsController < ApplicationController
 
     def set_jersey
       @jersey = params[:jersey]
+    end
+
+    def set_stat_type
+      @stat_type = StatType.find_by(id: params[:stat_type_id])
     end
 
     def team_params

@@ -7,6 +7,8 @@ Rails.application.routes.draw do
       post 'remove_player'
       post 'add_jersey_to_player'
       post 'recover_jersey_from_player'
+      post 'increment_player_stat'
+      post 'decrement_player_stat'
     end
   end
 

@@ -12,9 +12,29 @@ p, ol, ul, td {
   line-height: 18px;
 }
 
+table {
+  border-collapse: collapse;
+}
+
+table, th, td {
+  border: 1px solid black;
+  padding: 3px 7px 2px 7px;
+}
+
+tr.alt td {
+  color: #000000;
+  background-color: #EAF2D3;
+}
+
 td {
+  padding: 5px;
+
   &.number {
     text-align: right;
+  }
+
+  &.centered {
+    text-align: center;
   }
 }
 
